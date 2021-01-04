@@ -1,7 +1,8 @@
-[![cicd](https://github.com/jmpa-oss/docker-actions-template/workflows/cicd/badge.svg)](https://github.com/jmpa-oss/docker-actions-template/actions?query=workflow%3Acicd)
+[![cicd](https://github.com/jmpa-oss/linter/workflows/cicd/badge.svg)](https://github.com/jmpa-oss/linter/actions?query=workflow%3Acicd)
+[![update](https://github.com/jmpa-oss/linter/workflows/update/badge.svg)](https://github.com/jmpa-oss/linter/actions?query=workflow%3Aupdate)
 
-# docker-actions-template
+# linter
 
 ```diff
-+ A base template used to simplify creating GitHub Actions that primarily use docker to run.
++ A GitHub Action for linting (eg. Bash, Go, CloudFormation, Dockerfiles, etc)
 ```

@@ -1,0 +1,4 @@
+name: linter
+description: |
+  A GitHub Action for linting (eg. Bash, Go, CloudFormation, Dockerfiles, etc)
+author: jcleal
