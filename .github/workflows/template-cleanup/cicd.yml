@@ -9,6 +9,8 @@ jobs:
   cicd:
     name: CI/CD for %ACTION%
     runs-on: ubuntu-20.04
+    if: |
+      !contains(github.event.head_commit.message, 'skip ci')
     steps:
       - name: Checkout
         uses: actions/checkout@v2
