@@ -1,0 +1,35 @@
+name: update
+on:
+  repository_dispatch:
+    types: [update]
+
+jobs:
+  update:
+    name: Update repository with changes from template
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_ORG_TOKEN }}
+
+      - name: Update repository?
+        run: |
+          # configure user
+          git config user.name 'GitHub Actions'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          # check for changes
+          ./bin/update-template.sh \
+            || { echo "failed to check for updates from template repo"; exit 1; }
+
+          # push changes
+          git push
+
+      - name: Notify Slack
+        if: always()
+        uses: jmpa-oss/job-to-slack@v0.0.1
+        with:
+            webhook: ${{ secrets.SLACK_GITHUB_WEBHOOK_URL }}
+            status: ${{ job.status }}

@@ -1,0 +1,42 @@
+# This workflow is triggered automatically when a new repository has been created using this template.
+# based by https://github.com/JetBrains/intellij-platform-plugin-template/blob/main/.github/workflows/template-cleanup.yml
+
+name: template-cleanup
+on:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  template-cleanup:
+    name: Template Cleanup
+    runs-on: ubuntu-20.04
+    if: github.event.repository.name != 'docker-actions-template'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET }}
+          aws-region: ap-southeast-2
+
+      - name: Cleanup
+        run: ./bin/template-cleanup.sh
+
+      - name: Commit
+        run: |
+          git config user.name 'GitHub Actions'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -am "[skip ci] template cleanup"
+          git push
+
+      - name: Notify Slack
+        if: always()
+        uses: jmpa-oss/job-to-slack@v0.0.1
+        with:
+            webhook: ${{ secrets.SLACK_GITHUB_WEBHOOK_URL }}
+            status: ${{ job.status }}
