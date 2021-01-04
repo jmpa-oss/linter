@@ -59,19 +59,7 @@ for file in "${files[@]}"; do
   # overwrite file contents
   echo "$data" > "$dest" \
     || die "failed to update $dest with $src"
-
 done
-exit 0
-
-# update template README.md
-data="$(cat .github/workflows/template-cleanup/README.md)" \
-  || die "failed to read template README.md"
-data="${data//%ACTION%/$name}"        # replace repository name.
-data="${data//%DESCRIPTION%/$desc}"   # update repository description.
-
-# overwrite README.md
-echo "$data" > ./README.md \
-  || die "failed to update README.md"
 
 # remove template-specific files.
 rm -rf \
