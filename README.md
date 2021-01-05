@@ -6,3 +6,31 @@
 ```diff
 + A GitHub Action for linting (eg. Bash, Go, CloudFormation, Dockerfiles, etc)
 ```
+
+* To learn about creating a custom GitHub Action like this, see this doc.
+
+## usage
+
+basic usage:
+
+```yaml
+- name: Lint
+  uses: jmpa-oss/linter@v0.0.1
+```
+
+This will fail the build if there are any linting issues.
+
+To ignore these linting issues, use:
+
+```yaml
+- name: Lint
+  uses: jmpa-oss/linter@v0.0.1
+  continue-on-error: true
+```
+
+## pushing new tag?
+
+```bash
+git tag -m "<message>" <version>
+git push --tags
+```
