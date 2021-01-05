@@ -75,7 +75,7 @@ if [[ "${#errors[@]}" -ne 0 ]]; then
   fi
   if [[ "${#errorsBash[@]}" -ne 0 ]]; then
     s=""; [[ ${#errorsBash[@]} -gt 1 ]] && { s="s"; }
-    echo "${#errorsBash[@]} bash script$s found with linting issues."
+    echo "${#errorsBash[@]} Bash script$s found with linting issues."
   fi
   if [[ "${#errorsCloudFormation[@]}" -ne 0 ]]; then
     s=""; [[ ${#errorsCloudFormation[@]} -gt 1 ]] && { s="s"; }
