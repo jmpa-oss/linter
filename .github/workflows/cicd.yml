@@ -24,7 +24,11 @@ jobs:
 
       - name: Test latest version of linter
         uses: ./
-        with:
-          webhook: ${{ secrets.SLACK_GITHUB_WEBHOOK_URL }}
-          status: ${{ job.status }}
         continue-on-error: true
+
+      - name: Notify Slack
+        if: always()
+        uses: jmpa-oss/job-to-slack@v0.0.1
+        with:
+            webhook: ${{ secrets.SLACK_GITHUB_WEBHOOK_URL }}
+            status: ${{ job.status }}

@@ -4,8 +4,10 @@ description: |
 author: jcleal
 
 runs:
-  using: docker
-  image: Dockerfile
+  using: composite
+  steps:
+    - shell: bash
+      run: entrypoint.sh
 
 branding:
   icon: user-check
