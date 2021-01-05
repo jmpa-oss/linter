@@ -24,7 +24,7 @@ jobs:
 
       - name: Test latest version of linter
         uses: ./
-
+        continue-on-error: true
 
       - name: Notify Slack
         if: always()
