@@ -7,7 +7,7 @@
 + A GitHub Action for linting (eg. Bash, Go, CloudFormation, Dockerfiles, etc)
 ```
 
-* To learn about creating a custom GitHub Action like this, see this doc.
+* To learn about creating a custom GitHub Action like this, see [this doc](https://docs.github.com/en/free-pro-team@latest/actions/creating-actions/creating-a-docker-container-action).
 
 ## usage
 
