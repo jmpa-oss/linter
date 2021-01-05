@@ -7,7 +7,7 @@ runs:
   using: composite
   steps:
     - shell: bash
-      run: entrypoint.sh
+      run: $GITHUB_ACTION_PATH/entrypoint.sh
 
 branding:
   icon: user-check
