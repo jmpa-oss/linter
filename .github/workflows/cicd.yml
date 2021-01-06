@@ -23,7 +23,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET }}
           aws-region: ap-southeast-2
 
-      # TODO add linting step here.
+      - name: Lint
+        uses: jmpa-oss/linter@v0.0.1
 
       - name: Trigger update for repositories using this template
         run: ./bin/update-templates.sh
