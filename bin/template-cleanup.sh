@@ -38,13 +38,13 @@ desc=$(<<< "$resp" jq -r '.description') \
 
 # update + move files to their new destinations.
 files=(
-  .github/workflows/template-cleanup/README.md,./README.md
-  .github/workflows/template-cleanup/action.yml,./action.yml
-  .github/workflows/template-cleanup/cicd.yml,.github/workflows/cicd.yml
+  .github/workflows/template-cleanup/README.md|./README.md
+  .github/workflows/template-cleanup/action.yml|./action.yml
+  .github/workflows/template-cleanup/cicd.yml|.github/workflows/cicd.yml
 )
 for file in "${files[@]}"; do
-  src=$(<<< "$file" cut -d',' -f1)
-  dest=$(<<< "$file" cut -d',' -f2)
+  src=$(<<< "$file" cut -d'|' -f1)
+  dest=$(<<< "$file" cut -d'|' -f2)
   [[ "$src" == "$dest" ]] && { continue; } # skip files without destination paths
 
   # check file
@@ -52,7 +52,7 @@ for file in "${files[@]}"; do
     || die "missing $src"
 
   # update file contents
-  data="$(cat $src)" \
+  data="$(cat "$src")" \
     || die "failed to read $src"
   data="${data//%ACTION%/$name}"      # replace repository name.
   data="${data//%DESCRIPTION%/$desc}" # update repository description.

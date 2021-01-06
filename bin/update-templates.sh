@@ -38,6 +38,7 @@ cursor=null
 while :; do
 
   # https://docs.github.com/en/free-pro-team@latest/graphql/overview/explorer
+  # shellcheck disable=SC2162
   read -d '' q <<@
 query (\$c: String) {
   organization(login: "jmpa-oss") {
