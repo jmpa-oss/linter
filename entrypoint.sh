@@ -90,7 +90,7 @@ if [[ "${#files}" -ne 0 ]]; then
   # lint Go files, using built Dockerfile.
   for file in "${files[@]}"; do
     echo "##[group]Linting $file"
-    docker run -it --rm \
+    docker run --rm \
       -w /app \
       -v "$PWD:/app" \
       "$repo" \
