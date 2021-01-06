@@ -7,7 +7,12 @@ runs:
   using: composite
   steps:
     - shell: bash
-      run: $GITHUB_ACTION_PATH/entrypoint.sh
+      run: |
+        docker build -t linter $GITHUB_ACTION_PATH/
+
+    - shell: bash
+      run: |
+        $GITHUB_ACTION_PATH/entrypoint.sh
 
 branding:
   icon: user-check
