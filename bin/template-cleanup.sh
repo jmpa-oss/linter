@@ -38,9 +38,9 @@ desc=$(<<< "$resp" jq -r '.description') \
 
 # update + move files to their new destinations.
 files=(
-  .github/workflows/template-cleanup/README.md|./README.md
-  .github/workflows/template-cleanup/action.yml|./action.yml
-  .github/workflows/template-cleanup/cicd.yml|.github/workflows/cicd.yml
+  ".github/workflows/template-cleanup/README.md|./README.md"
+  ".github/workflows/template-cleanup/action.yml|./action.yml"
+  ".github/workflows/template-cleanup/cicd.yml|.github/workflows/cicd.yml"
 )
 for file in "${files[@]}"; do
   src=$(<<< "$file" cut -d'|' -f1)

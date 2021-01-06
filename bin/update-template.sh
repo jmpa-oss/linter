@@ -22,10 +22,10 @@ git fetch template \
 remotebranch="template/master"
 branch=$(git branch --show-current) \
   || die "failed to get current checked out branch"
-files=($(git diff --name-only "$branch" "$remotebranch")) \
+mapfile -t files < <(git diff --name-only "$branch" "$remotebranch") \
   || die "failed to get remote changed files list for $remotebranch"
-[[ ${#files[@]} -eq 0 ]] && \
-  die "no files found to update for $remotebranch, skipping merge to $branch" 0
+[[ ${#files[@]} -eq 0 ]] \
+  && die "no files found to update for $remotebranch, skipping merge to $branch" 0
 
 # merge changes
 git merge "$remotebranch" --allow-unrelated-histories \
