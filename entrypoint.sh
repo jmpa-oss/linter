@@ -8,8 +8,17 @@ die() { echo "$1" >&2; exit "${2:-1}"; }
 [[ ! -d .git ]] \
   && die "must be run from repository root directory"
 
+# vars
+cfpath="./cf"
+
+# check repository + setup vars
+repo="$(basename "$PWD")" \
+  || die "failed to get repository name"
+[[ "$repo" == "linter" ]] && { cfpath="./testdata"; }
+
 # check deps
-deps=(docker aws)
+deps=(docker)
+[[ -d "$cfpath" ]] && { deps+=(aws sam); }
 for dep in "${deps[@]}"; do
   hash "$dep" 2>/dev/null || missing+=("$dep")
 done
@@ -18,12 +27,34 @@ if [[ ${#missing[@]} -ne 0 ]]; then
   die "missing dep${s}: ${missing[*]}"
 fi
 
-# check auth
-aws sts get-caller-identity &>/dev/null \
-  || die "unable to connect to AWS; are you authed?"
-
 # setup
 errors=()
+
+# lint cf + sam templates?
+if [[ -d "$cfpath" ]]; then
+
+  # check auth
+  aws sts get-caller-identity &>/dev/null \
+    || die "unable to connect to AWS; are you authed?"
+
+  # lint cf templates
+  mapfile -t files < <(find "$cfpath" -name '*.yml' -type f | sort)
+  for file in "${files[@]}"; do
+    echo "##[group]Linting $file"
+    aws cloudformation validate-template --template-body "file://$file" \
+      || { errors+=("cf|$file"); }
+    echo "##[endgroup]"
+  done
+
+  # lint sam templates
+  mapfile -t files < <(find "$cfpath" -name '*.yaml' -type f | sort)
+  for file in "${files[@]}"; do
+    echo "##[group]Linting $file"
+    sam validate -t "$file" \
+      || { errors+=("sam|$file"); }
+    echo "##[endgroup]"
+  done
+fi
 
 # lint Dockerfiles
 mapfile -t files < <(find . -name '*Dockerfile*' -type f | sort)
@@ -34,7 +65,7 @@ for file in "${files[@]}"; do
   echo "##[endgroup]"
 done
 
-# lint bash
+# lint Bash
 mapfile -t files < <(find . -name '*.sh' -type f | sort)
 for file in "${files[@]}"; do
   echo "##[group]Linting $file"
@@ -46,13 +77,25 @@ for file in "${files[@]}"; do
   echo "##[endgroup]"
 done
 
-# lint cf
-if [[ -d ./cf ]]; then
-  mapfile -t files < <(find ./cf -name '*.yml' -type f | sort)
+# lint Go
+mapfile -t files < <(find . -name '*.go' -type f | sort)
+if [[ "${#files}" -ne 0 ]]; then
+
+  # build Dockerfile
+  echo "##[group]Building Go Dockerfile"
+  docker build -t "$repo" . \
+    || die "failed to docker build $repo"
+  echo "##[endgroup]"
+
+  # lint Go files, using built Dockerfile.
   for file in "${files[@]}"; do
     echo "##[group]Linting $file"
-    aws cloudformation validate-template --template-body "file://$file" \
-      || { errors+=("cf|$file"); }
+    docker run -it --rm \
+      -w /app \
+      -v "$PWD:/app" \
+      "$repo" \
+      bash -c "revive -formatter friendly ./$file" \
+      || { errors+=("go|$file"); }
     echo "##[endgroup]"
   done
 fi
@@ -65,21 +108,30 @@ if [[ "${#errors[@]}" -ne 0 ]]; then
     case $type in
       Dockerfile) errorsDockerfile+=("$file") ;;
       bash) errorsBash+=("$file") ;;
-      cf) errorsCloudFormation+=("$file") ;;
+      cf) errorsCF+=("$file") ;;
+      sam) errorsSAM+=("$file") ;;
+      go) errorsGo+=("$file") ;;
     esac
   done
   if [[ "${#errorsDockerfile[@]}" -ne 0 ]]; then
     s=""; [[ ${#errorsDockerfile[@]} -gt 1 ]] && { s="s"; }
-    echo "${#errorsDockerfile[@]} Dockerfile$s found with linting issues."
-
+    echo "${#errorsDockerfile[@]} Dockerfile$s found with issues."
   fi
   if [[ "${#errorsBash[@]}" -ne 0 ]]; then
     s=""; [[ ${#errorsBash[@]} -gt 1 ]] && { s="s"; }
-    echo "${#errorsBash[@]} Bash script$s found with linting issues."
+    echo "${#errorsBash[@]} Bash script$s found with issues."
   fi
-  if [[ "${#errorsCloudFormation[@]}" -ne 0 ]]; then
-    s=""; [[ ${#errorsCloudFormation[@]} -gt 1 ]] && { s="s"; }
-    echo "${#errorsCloudFormation[@]} CloudFormation template$s found with linting issues."
+  if [[ "${#errorsCF[@]}" -ne 0 ]]; then
+    s=""; [[ ${#errorsCF[@]} -gt 1 ]] && { s="s"; }
+    echo "${#errorsCF[@]} CloudFormation template$s found with issues."
+  fi
+  if [[ "${#errorsSAM[@]}" -ne 0 ]]; then
+    s=""; [[ ${#errorsSAM[@]} -gt 1 ]] && { s="s"; }
+    echo "${#errorsSAM[@]} SAM template$s found with issues."
+  fi
+  if [[ "${#errorsGo[@]}" -ne 0 ]]; then
+    s=""; [[ ${#errorsGo[@]} -gt 1 ]] && { s="s"; }
+    echo "${#errorsGo[@]} Go file$s found with issues."
   fi
   exit 1
 fi
