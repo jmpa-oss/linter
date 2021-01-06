@@ -77,23 +77,15 @@ for file in "${files[@]}"; do
   echo "##[endgroup]"
 done
 
-# lint Go
+# lint Go files, using built Dockerfile.
 mapfile -t files < <(find . -name '*.go' -type f | sort)
 if [[ "${#files}" -ne 0 ]]; then
-
-  # # build Dockerfile
-  # echo "##[group]Building Go Dockerfile"
-  # docker build -t "$repo" . \
-  #   || die "failed to docker build $repo"
-  # echo "##[endgroup]"
-
-  # lint Go files, using built Dockerfile.
   for file in "${files[@]}"; do
     echo "##[group]Linting $file"
     docker run --rm \
       -w /app \
       -v "$PWD:/app" \
-      "$repo" \
+      linter \
       bash -c "revive -formatter friendly ./$file" \
       || { errors+=("go|$file"); }
     echo "##[endgroup]"
