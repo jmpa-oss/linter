@@ -10,7 +10,7 @@ die() { echo "$1" >&2; exit "${2:-1}"; }
 
 # check remote has been setup
 [[ $(git remote show template 2>/dev/null) ]] || {
-  git remote add template "https://github.com/jmpa-oss/docker-actions-template.git" \
+  git remote add template "https://github.com/jmpa-oss/actions-template.git" \
     || die "failed to add remote template"
 }
 

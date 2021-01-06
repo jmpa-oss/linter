@@ -12,7 +12,7 @@ jobs:
   template-cleanup:
     name: Template Cleanup
     runs-on: ubuntu-20.04
-    if: github.event.repository.name != 'docker-actions-template'
+    if: github.event.repository.name != 'actions-template'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
